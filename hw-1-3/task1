@@ -1,0 +1,48 @@
+"""1. Необходимо спарсить данные о вакансиях python разработчиков с сайта hh.ru,
+введя в поиск “python разработчик” и указав, что мы рассматриваем все регионы.
+Необходимо спарсить:
+Название вакансии
+Требуемый опыт работы
+Заработную плату
+Регион
+И сохранить эти данные в формате json в следующем виде:"""
+
+out_json = []
+
+from bs4 import BeautifulSoup
+import requests
+from time import sleep
+from random import uniform
+
+url = 'https://spb.hh.ru/search/vacancy?no_magic=true&L_save_area=true&text=python+%D1%80%D0%B0%D0%B7%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%87%D0%B8%D0%BA&salary=&currency_code=RUR&experience=doesNotMatter&order_by=relevance&search_period=0'
+headers = {'User-Agent': 'Chrome/105', 'Host': 'spb.hh.ru'}
+
+def get_info(url):
+    for page in range(50):
+        p_url = f'{url}&page={page}'
+        response = requests.get(p_url, headers=headers)
+        soup = BeautifulSoup(response.text, 'lxml')
+        page_info = soup.find_all(class_='vacancy-serp-item-body')
+
+        try:
+            for info_item in page_info:
+                title = info_item.find(attrs={'data-qa': 'serp-item__title'})
+                vacancy = {'title': title.text.replace(u'\xa0', u' ')}
+
+                vac_resp = requests.get(title.attrs['href'], headers=headers)
+                soup_vac = BeautifulSoup(vac_resp.text, 'lxml')
+
+                experience = soup_vac.find(attrs={'data-qa': 'vacancy-experience'})
+                vacancy['work experience'] = experience.text.replace(u'\xa0', u' ')
+
+                salary = soup_vac.find(attrs={'data-qa': 'vacancy-salary'})
+                vacancy['salary'] = salary.text.replace(u'\xa0', u' ')
+
+                region = info_item.find(attrs={'data-qa': 'vacancy-serp__vacancy-address'})
+                vacancy['region'] = region.text.replace(u'\xa0', u' ')
+
+                out_json.append(vacancy)
+                sleep(uniform(0.9, 2.5))
+        except:
+            break
+    return out_json
