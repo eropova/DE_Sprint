@@ -1,0 +1,34 @@
+"""
+4. Валидность скобок
+Дана строка X, состоящая только из символов “{“, “}”, “[“, “]”, “(“, “)”.
+Программа должна вывести True, в том случае если все открытые скобки закрыты.
+Например: “[()]{}”, все открытые скобки закрыты закрывающимися скобками, потому вывод будет True.
+В случае же, если строка будет похожа на: “{{{}”, то вывод будет False, т.к. не все открытые скобки закрыты.
+Пример 1: Ввод: x = “[{}({})]” Вывод: True
+Пример 2: Ввод: x = “{]” Вывод: False
+Пример 3: Ввод: x = “{“ Вывод: False
+Пример 4: Ввод: x = “}{“ Вывод: False
+Гарантируется, что введенная строка X будет содержать только скобки и не будет пустой.
+"""
+
+
+def valid_parentheses(string):
+    opens = ['{', '[', '(']
+    closes = ['}', ']', ')']
+    types = {
+        '{': 'curlies',
+        '[': 'squares',
+        '(': 'ordinaries',
+        '}': 'curlies',
+        ']': 'squares',
+        ')': 'ordinaries'
+    }
+    cnt_dict = {'curlies': 0, 'squares': 0, 'ordinaries': 0}
+    for ch in string:
+        if ch in opens:
+            cnt_dict[types[ch]] += 1
+        if ch in closes:
+            cnt_dict[types[ch]] -= 1
+        if any(x for x in cnt_dict.values() if x < 0):
+            return False
+    return True if sum(cnt_dict.values()) == 0 else False
