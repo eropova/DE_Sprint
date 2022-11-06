@@ -56,6 +56,7 @@ s.id_employee ,
 department ,
 s."name" ,
 m.mark,
+salary ,
 case 
 	when m.mark = 'A' then 1.2
 	when m.mark = 'B' then 1.1
@@ -66,11 +67,11 @@ from
 staff s join marks m on s.id_employee = m.id_employee )
 select 
 department ,
-sum(coef_mark) 
+sum(coef_mark*salary) 
 from coef
 group by 1
 order by 2 desc
-limit 1; -- у данного отдела наибольший суммарный коэффициент
+limit 1;
 
 
 --g.    *Проиндексируйте зарплаты сотрудников с учетом коэффициента премии. 
